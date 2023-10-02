@@ -1,6 +1,6 @@
 import time
 
-from mysite.unmasque.src.pipeline.abstract.TpchSanitizer import TpchSanitizer
+from ...src.pipeline.abstract.TpchSanitizer import TpchSanitizer
 
 
 class Base(TpchSanitizer):
