@@ -2,8 +2,6 @@ import csv
 import os.path
 
 from ..refactored.abstract.ExtractorBase import Base
-from ..refactored.util.common_queries import drop_table
-from ..src.pipeline.abstract.TpchSanitizer import TpchSanitizer
 
 
 class Initiator(Base):
@@ -17,7 +15,6 @@ class Initiator(Base):
         self.global_index_dict = {}
         self.global_key_lists = [[]]
         self.global_pk_dict = {}
-        self.all_relations = []
         self.error = None
 
     def reset(self):
@@ -37,11 +34,9 @@ class Initiator(Base):
 
     def doActualJob(self, args):
         print("inside -- initialization.initialization")
-        self.sanitize()
+        # self.sanitize()
         print("sanitized!")
         self.reset()
-
-        self.all_relations = self.get_all_relations()
 
         check = self.verify_support_files()
         if not check:
@@ -54,6 +49,7 @@ class Initiator(Base):
         self.do_refinement()
 
         self.make_index_dict()
+        self.sanitize()
         return True
 
     def make_index_dict(self):
@@ -70,8 +66,10 @@ class Initiator(Base):
                                  self.global_key_lists if elt and len(elt) > 1]
 
     def make_pkfk_complete_graph(self, all_pkfk):
+        all_relations = []
         temp = []
         for row in all_pkfk:
+            all_relations.append(row[0])
             if row[2].upper() == 'Y':
                 self.global_pk_dict[row[0]] = self.global_pk_dict.get(row[0], '') + ("," if row[0] in temp else '') + \
                                               row[1]
@@ -91,6 +89,9 @@ class Initiator(Base):
                 self.global_key_lists.append([(row[0], row[1]), (row[4], row[5])])
             elif row[0]:
                 self.global_key_lists.append([(row[0], row[1])])
+
+        self.set_all_relations(list(set(all_relations)))
+        print("all relations: ", self.all_relations)
 
     def get_all_pkfk(self):
         all_pkfk = []

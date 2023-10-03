@@ -6,6 +6,10 @@ def alter_table_rename_to(tab, retab):
     return "Alter table " + tab + " rename to " + retab + ";"
 
 
+def alter_view_rename_to(tab, retab):
+    return "Alter view " + tab + " rename to " + retab + ";"
+
+
 def create_table_like(tab, ctab):
     return "Create table " + tab + " (like " + ctab + ");"
 
@@ -22,6 +26,10 @@ def get_star(tab):
     return "select * from " + tab + ";"
 
 
+def get_star_from_except_all_get_star_from(tab1, tab2):
+    return "(select * from " + tab1 + " except all select * from " + tab2 + ")"
+
+
 def get_restore_name(tab):
     return tab + "_restore"
 
@@ -31,7 +39,7 @@ def get_min_max_ctid(tab):
 
 
 def drop_view(tab):
-    return "drop view " + tab + ";"
+    return "drop view if exists " + tab + ";"
 
 
 def get_tabname_1(tab):
@@ -44,6 +52,10 @@ def get_tabname_4(tab):
 
 def get_tabname_un(tab):
     return tab + "_un"
+
+
+def get_tabname_nep(tab):
+    return tab + "_nep"
 
 
 def create_view_as_select_star_where_ctid(mid_ctid1, start_ctid, tabname, tabname1):
