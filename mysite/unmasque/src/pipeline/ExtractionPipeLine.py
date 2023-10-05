@@ -156,6 +156,7 @@ def extract(query):
                  ej.global_join_graph,
                  pj.projected_attribs,
                  pj.projection_names,
+				 pj.dependencies,
                  agg.global_aggregated_attributes)
     ob.doJob(query)
     time_profile.update_for_order_by(ob.local_elapsed_time)

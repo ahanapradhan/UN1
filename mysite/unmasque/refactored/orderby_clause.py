@@ -2,17 +2,18 @@ import copy
 
 from .util.utils import get_dummy_val_for, get_val_plus_delta, get_format, get_char, isQ_result_empty
 from ..refactored.abstract.GenerationPipeLineBase import GenerationPipeLineBase
-from ..src.util.constants import COUNT
+from ..src.util.constants import COUNT, COUNT_STAR, NO_ORDER, SUM
 
 
-class CandidateAttribute():
+class CandidateAttribute:
     """docstring for CandidateAttribute"""
 
-    def __init__(self, attrib, aggregation, dependency, dependencyList, index, name):
+    def __init__(self, attrib, aggregation, dependency, dependencyList, attrib_dependency, index, name):
         self.attrib = attrib
         self.aggregation = aggregation
         self.dependency = dependency
         self.dependencyList = copy.deepcopy(dependencyList)
+        self.attrib_dependency = copy.deepcopy(attrib_dependency)
         self.index = index
         self.name = name
 
@@ -22,16 +23,24 @@ class CandidateAttribute():
         print(self.dependency)
         print(self.dependencyList)
         print(self.index)
-        print('')
+		print('')
+def tryConvertToInt(logger, val):
+    temp = 0
+    try:
+        temp = int(val)
+    except ValueError as e:
+        logger.debug("Not int error, ", e)
+        temp = val
+    return temp
 
 
 def checkOrdering(obj, result):
     if len(result) < 2:
         return None
-    reference_value = result[1][obj.index]
+    reference_value = tryConvertToInt(logger, result[1][obj.index])
     for i in range(2, len(result)):
-        if result[i][obj.index] != reference_value:
-            return 'asc' if result[i][obj.index] > reference_value else 'desc'
+        if tryConvertToInt(logger, result[i][obj.index]) != reference_value:
+            return 'asc' if tryConvertToInt(logger, result[i][obj.index]) > reference_value else 'desc'
     return None
 
 
@@ -44,7 +53,7 @@ class OrderBy(GenerationPipeLineBase):
                  global_all_attribs,
                  join_graph,
                  projected_attribs,
-                 global_projection_names,
+                 global_projection_names,global_dependencies,
                  global_aggregated_attributes):
         super().__init__(connectionHelper, "Order By",
                          core_relations,
@@ -57,6 +66,7 @@ class OrderBy(GenerationPipeLineBase):
         self.global_aggregated_attributes = global_aggregated_attributes
         self.global_key_attributes = global_key_attributes
         self.orderby_list = []
+        self.global_dependencies = global_dependencies
         self.orderBy_string = ''
         self.has_orderBy = True
 
@@ -73,7 +83,7 @@ class OrderBy(GenerationPipeLineBase):
 
     def check_order_by_on_count(self, cand_list, curr_orderby, filter_attrib_dict, query):
         for elt in cand_list:
-            if 'Count' not in elt.aggregation:
+            if COUNT not in elt.aggregation:
                 continue
             for i in range(len(self.orderby_list) + 1):
                 temp_orderby_list = []
@@ -83,9 +93,9 @@ class OrderBy(GenerationPipeLineBase):
                 if order is None:
                     break
                 else:
-                    if order != 'noorder':
+                    if order != NO_ORDER:
                         self.orderby_list.insert(i, (elt, order))
-                        curr_orderby += "Count(*) " + order + ", "
+                        curr_orderby += COUNT_STAR + " " + order + ", "
                         break
 
     def remove_equality_predicates(self, cand_list, filter_attrib_dict, query):
@@ -94,7 +104,7 @@ class OrderBy(GenerationPipeLineBase):
         for elt in cand_list:
             for entry in self.global_filter_predicates:
                 if elt.attrib == entry[1] and (entry[2] == '=' or entry[2] == 'equal') and not (
-                        'Sum' in elt.aggregation or 'Count' in elt.aggregation):
+                        SUM in elt.aggregation or COUNT in elt.aggregation):
                     remove_list.append(elt)
         for elt in remove_list:
             cand_list.remove(elt)
@@ -103,12 +113,12 @@ class OrderBy(GenerationPipeLineBase):
             remove_list = []
             self.has_orderBy = False
             for elt in cand_list:
-                if 'Count' in elt.aggregation:
+                if COUNT in elt.aggregation:
                     continue
                 order = self.generateData(elt, self.orderby_list, filter_attrib_dict, curr_orderby, query)
                 if order is None:
                     remove_list.append(elt)
-                elif order != 'noorder':
+                elif order != NO_ORDER:
                     self.has_orderBy = True
                     self.orderby_list.append((elt, order))
                     curr_orderby += elt.name + " " + order + ", "
@@ -130,7 +140,7 @@ class OrderBy(GenerationPipeLineBase):
             cand_list.append(CandidateAttribute(self.global_aggregated_attributes[i][0],
                                                 self.global_aggregated_attributes[i][1],
                                                 not (not dependencyList),
-                                                dependencyList, i, self.global_projection_names[i]))
+                                                dependencyList, self.global_dependencies[i], i, self.global_projection_names[i]))
         return cand_list
 
     def generateData(self, obj, orderby_list, filter_attrib_dict, curr_orderby, query):
@@ -150,7 +160,8 @@ class OrderBy(GenerationPipeLineBase):
             # Fill 3 rows in any one table (with a b b values) and 2 in all others (with a b values) in D2
             same_value_list = []
             for elt in orderby_list:
-                same_value_list.append(elt[0].attrib)
+                for i in elt[0].attrib_dependency:
+                    same_value_list.append(i)
             no_of_db = 2
             order = [None, None]
             # For this attribute (obj.attrib), fill all tables now
@@ -212,10 +223,11 @@ class OrderBy(GenerationPipeLineBase):
                                 second = get_char(get_val_plus_delta('char', get_dummy_val_for('char'), 1))
                         insert_values1.append(first)
                         insert_values2.append(second)
-                        if k == no_of_db - 1 and (attrib_inner == obj.attrib or COUNT in obj.aggregation):
+                        if k == no_of_db - 1 and (any([(attrib_inner in i) for i in
+                                                       obj.attrib_dependency]) or 'Count' in obj.aggregation):
                             # swap first and second
                             insert_values2[-1], insert_values1[-1] = insert_values1[-1], insert_values2[-1]
-                        if attrib_inner in same_value_list:
+                        if any([(attrib_inner in i) for i in same_value_list]):
                             insert_values2[-1] = insert_values1[-1]
                     flag = True
                     if COUNT in obj.aggregation and tabname_inner == first_rel:
@@ -239,5 +251,5 @@ class OrderBy(GenerationPipeLineBase):
             if order[0] is not None and order[1] is not None and order[0] == order[1]:
                 return order[0]
             else:
-                return 'noorder'
-        return 'noorder'
+                return NO_ORDER
+        return NO_ORDER

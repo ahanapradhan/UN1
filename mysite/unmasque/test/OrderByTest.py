@@ -79,7 +79,7 @@ class MyTestCase(BaseTestCase):
                      global_all_attribs,
                      join_graph,
                      projections,
-                     names,
+                     names,dep,
                      global_aggregated_attributes)
         check = ob.doJob(queries.Q3)
         print("Order by ", ob.orderBy_string)
@@ -157,7 +157,7 @@ class MyTestCase(BaseTestCase):
                      global_all_attribs,
                      join_graph,
                      projections,
-                     names,
+                     names,dep,
                      global_aggregated_attributes)
         check = ob.doJob(queries.Q3_1)
         print("Order by ", ob.orderBy_string)
