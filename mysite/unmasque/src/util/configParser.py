@@ -5,7 +5,6 @@ from .constants import DATABASE_SECTION, HOST, PORT, USER, PASSWORD, SCHEMA, DBN
     SUPPORT_SECTION
 
 
-
 class Config:
     _instance = None
 
@@ -26,7 +25,6 @@ class Config:
         self.host = "localhost"
         self.base_path = None
         self.config_loaded = False
-
 
     def parse_config(self):
         if self.config_loaded:

@@ -2,6 +2,7 @@ import copy
 
 from .util.utils import get_dummy_val_for, get_val_plus_delta, get_format, get_char, isQ_result_empty
 from ..refactored.abstract.GenerationPipeLineBase import GenerationPipeLineBase
+from ..src.util.constants import COUNT
 
 
 class CandidateAttribute():
@@ -211,13 +212,13 @@ class OrderBy(GenerationPipeLineBase):
                                 second = get_char(get_val_plus_delta('char', get_dummy_val_for('char'), 1))
                         insert_values1.append(first)
                         insert_values2.append(second)
-                        if k == no_of_db - 1 and (attrib_inner == obj.attrib or 'Count' in obj.aggregation):
+                        if k == no_of_db - 1 and (attrib_inner == obj.attrib or COUNT in obj.aggregation):
                             # swap first and second
                             insert_values2[-1], insert_values1[-1] = insert_values1[-1], insert_values2[-1]
                         if attrib_inner in same_value_list:
                             insert_values2[-1] = insert_values1[-1]
                     flag = True
-                    if 'Count' in obj.aggregation and tabname_inner == first_rel:
+                    if COUNT in obj.aggregation and tabname_inner == first_rel:
                         insert_rows.append(tuple(insert_values1))
                         insert_rows.append(tuple(insert_values1))
                         insert_rows.append(tuple(insert_values2))
