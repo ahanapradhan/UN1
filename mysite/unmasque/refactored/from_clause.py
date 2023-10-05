@@ -11,8 +11,6 @@ except ImportError:
 
 
 class FromClause(Base):
-    DEBUG_QUERY = "select pid, state, query from pg_stat_activity where datname = 'tpch';"
-    TERMINATE_STUCK_QUERIES = "SELECT pg_terminate_backend(pid);"
 
     def __init__(self, connectionHelper):
         super().__init__(connectionHelper, "FromClause")
