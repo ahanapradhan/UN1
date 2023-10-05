@@ -522,34 +522,37 @@ class Projection(GenerationPipeLineBase):
             temp_str = ""
             for j in range(len(i)):
                 temp_str += i[j]
-                if j != len(i)-1:
+                if j != len(i) - 1:
                     temp_str += "*"
             final_lis.append(temp_str)
         return final_lis
 
+
 def get_param_values_external(coeff_arr):
-        print(coeff_arr)
-        subsets = get_subsets(coeff_arr)
-        subsets = sorted(subsets, key=len)
-        print(subsets)
-        final_lis = []
-        for i in subsets:
-            temp_val = 1
-            if len(i) < 2 and i == []:
-                continue
-            for j in range(len(i)):
-                temp_val *= i[j]
-            final_lis.append(temp_val)
-        return final_lis
+    print(coeff_arr)
+    subsets = get_subsets(coeff_arr)
+    subsets = sorted(subsets, key=len)
+    print(subsets)
+    final_lis = []
+    for i in subsets:
+        temp_val = 1
+        if len(i) < 2 and i == []:
+            continue
+        for j in range(len(i)):
+            temp_val *= i[j]
+        final_lis.append(temp_val)
+    return final_lis
+
 
 def get_subsets(deps):
     res = []
     get_subsets_helper(deps, res, [], 0)
     return res
 
+
 def get_subsets_helper(deps, res, curr, idx):
     res.append(curr[:])
     for i in range(idx, len(deps)):
         curr.append(deps[i])
-        get_subsets_helper(deps, res, curr, i+1)
+        get_subsets_helper(deps, res, curr, i + 1)
         curr.pop()
