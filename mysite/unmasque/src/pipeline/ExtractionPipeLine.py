@@ -160,7 +160,7 @@ def extract(query):
     ob.doJob(query)
     time_profile.update_for_order_by(ob.local_elapsed_time)
     if not ob.has_orderBy:
-        print("Cannot find aggregations.")
+        print("Cannot find order by attributes.")
     if not ob.done:
         print("Some error while extrating aggregations. Aborting extraction!")
         return None, time_profile
