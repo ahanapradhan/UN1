@@ -23,13 +23,15 @@ class CandidateAttribute:
         print(self.dependency)
         print(self.dependencyList)
         print(self.index)
-		print('')
-def tryConvertToInt(logger, val):
+        print('')
+
+
+def tryConvertToInt(val):
     temp = 0
     try:
         temp = int(val)
     except ValueError as e:
-        logger.debug("Not int error, ", e)
+        print("Not int error, " + str(e))
         temp = val
     return temp
 
@@ -37,10 +39,10 @@ def tryConvertToInt(logger, val):
 def checkOrdering(obj, result):
     if len(result) < 2:
         return None
-    reference_value = tryConvertToInt(logger, result[1][obj.index])
+    reference_value = tryConvertToInt(result[1][obj.index])
     for i in range(2, len(result)):
-        if tryConvertToInt(logger, result[i][obj.index]) != reference_value:
-            return 'asc' if tryConvertToInt(logger, result[i][obj.index]) > reference_value else 'desc'
+        if tryConvertToInt(result[i][obj.index]) != reference_value:
+            return 'asc' if tryConvertToInt(result[i][obj.index]) > reference_value else 'desc'
     return None
 
 
@@ -53,7 +55,7 @@ class OrderBy(GenerationPipeLineBase):
                  global_all_attribs,
                  join_graph,
                  projected_attribs,
-                 global_projection_names,global_dependencies,
+                 global_projection_names, global_dependencies,
                  global_aggregated_attributes):
         super().__init__(connectionHelper, "Order By",
                          core_relations,
@@ -140,7 +142,8 @@ class OrderBy(GenerationPipeLineBase):
             cand_list.append(CandidateAttribute(self.global_aggregated_attributes[i][0],
                                                 self.global_aggregated_attributes[i][1],
                                                 not (not dependencyList),
-                                                dependencyList, self.global_dependencies[i], i, self.global_projection_names[i]))
+                                                dependencyList, self.global_dependencies[i], i,
+                                                self.global_projection_names[i]))
         return cand_list
 
     def generateData(self, obj, orderby_list, filter_attrib_dict, curr_orderby, query):
@@ -210,12 +213,14 @@ class OrderBy(GenerationPipeLineBase):
                                     string = copy.deepcopy(filter_attrib_dict[(tabname_inner, attrib_inner)])
                                     first = string.replace('_', get_char(get_dummy_val_for('char')))
                                     string = copy.deepcopy(filter_attrib_dict[(tabname_inner, attrib_inner)])
-                                    second = string.replace('_', get_char(get_val_plus_delta('char', get_dummy_val_for('char'), 1)))
+                                    second = string.replace('_', get_char(
+                                        get_val_plus_delta('char', get_dummy_val_for('char'), 1)))
                                 else:
                                     string = copy.deepcopy(filter_attrib_dict[(tabname_inner, attrib_inner)])
                                     first = string.replace('%', get_char(get_dummy_val_for('char')), 1)
                                     string = copy.deepcopy(filter_attrib_dict[(tabname_inner, attrib_inner)])
-                                    second = string.replace('%', get_char(get_val_plus_delta('char', get_dummy_val_for('char'), 1)), 1)
+                                    second = string.replace('%', get_char(
+                                        get_val_plus_delta('char', get_dummy_val_for('char'), 1)), 1)
                                 first.replace('%', '')
                                 second.replace('%', '')
                             else:

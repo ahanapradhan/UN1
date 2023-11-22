@@ -88,7 +88,7 @@ class Filter(WhereClause):
                 filterAttribs.append(
                     (tabname, attrib, '=', float(d_plus_value[attrib]), float(d_plus_value[attrib])))
             else:
-                val1 = self.get_filter_value(query, 'float', tabname, attrib, math.ceil(float(d_plus_value[attrib])),
+                val1 = self.get_filter_value(query, 'float', tabname, attrib, float(d_plus_value[attrib]),
                                              max_val_domain, '<=')
                 val2 = self.get_filter_value(query, 'float', tabname, attrib, min_val_domain,
                                              math.floor(float(d_plus_value[attrib])), '>=')
