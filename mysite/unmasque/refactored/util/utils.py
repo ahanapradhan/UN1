@@ -121,13 +121,13 @@ def is_left_less_than_right_by_cutoff(datatype, left, right, cutoff):
     if datatype == 'date':
         yes = int((right - left).days) > cutoff
     else:
-        yes = int((right - left)) > cutoff
+        yes = (right - left) > cutoff
     return yes
 
 
 def get_format(datatype, val):
     if datatype == 'date' or datatype == 'char' \
-        or datatype == 'character' \
+            or datatype == 'character' \
             or datatype == 'character varying':
         return "'" + str(val) + "'"
     elif datatype == 'float' or datatype == 'numeric':
@@ -142,6 +142,7 @@ def get_mid_val(datatype, high, low):
         mid_val = int((high + low) / 2)
     else:  # numeric
         mid_val = (high + low) / 2
+        mid_val = round(mid_val, 3)
     return mid_val
 
 

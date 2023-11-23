@@ -69,3 +69,4 @@ mysite/unmasque/test/__pycache__/TpchSanitizerTest.cpython-39.pyc
 mysite/unmasque/test/__pycache__/ViewMinimizerTest.cpython-39.pyc
 mysite/unmasque/test/__pycache__/WhereClauseTest.cpython-39.pyc
 *.pyc
+mysite/unmasque/test/experiment_results.txt

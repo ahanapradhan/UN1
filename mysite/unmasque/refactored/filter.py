@@ -1,8 +1,8 @@
 import copy
 import math
 
-from .util.common_queries import truncate_table, update_tab_attrib_with_quoted_value, get_tabname_4, \
-    insert_into_tab_select_star_fromtab, update_sql_query_tab_attribs, form_update_query_with_value
+from .util.common_queries import get_tabname_4, update_sql_query_tab_attribs, form_update_query_with_value, \
+    insert_into_tab_select_star_fromtab, truncate_table, update_tab_attrib_with_quoted_value
 from .util.utils import isQ_result_empty, get_val_plus_delta, get_cast_value, \
     get_min_and_max_val, get_format, get_mid_val, is_left_less_than_right_by_cutoff
 from .abstract.where_clause import WhereClause
@@ -47,7 +47,7 @@ class Filter(WhereClause):
                     self.extract_filter_on_attrib(attrib, attrib_max_length, d_plus_value, filter_attribs,
                                                   query, tabname)
 
-                    # print("filter_attribs", filter_attribs)
+                    print("filter_attribs" + str(filter_attribs))
         return filter_attribs
 
     def extract_filter_on_attrib(self, attrib, attrib_max_length, d_plus_value, filter_attribs, query, tabname):
@@ -98,13 +98,14 @@ class Filter(WhereClause):
                                         max_val_domain, '<=')
             val = float(val)
             val1 = self.get_filter_value(query, 'float', tabname, attrib, val, val + 0.99, '<=')
-            filterAttribs.append((tabname, attrib, '<=', float(min_val_domain), float(round(val1, 2))))
+
+            filterAttribs.append((tabname, attrib, '<=', float(min_val_domain), float(round(val1, 3))))
         elif not min_present and max_present:
             val = self.get_filter_value(query, 'float', tabname, attrib, min_val_domain,
                                         math.floor(float(d_plus_value[attrib]) + 5), '>=')
             val = float(val)
             val1 = self.get_filter_value(query, 'float', tabname, attrib, val - 1, val, '>=')
-            filterAttribs.append((tabname, attrib, '>=', float(round(val1, 2)), float(max_val_domain)))
+            filterAttribs.append((tabname, attrib, '>=', float(round(val1, 3)), float(max_val_domain)))
 
     def get_filter_value(self, query, datatype,
                          tabname, filter_attrib,
@@ -122,13 +123,14 @@ class Filter(WhereClause):
                 mid_val, new_result = self.run_app_with_mid_val(datatype, high, low, query, query_front)
                 if mid_val == low or mid_val == high:
                     self.revert_filter_changes(tabname)
-                    # break
-                    return mid_val
+                    break
+                    # return low
                 if isQ_result_empty(new_result):
                     new_val = get_val_plus_delta(datatype, mid_val, -1 * delta)
                     high = new_val
                 else:
                     low = mid_val
+                
                 self.revert_filter_changes(tabname)
             return low
 
@@ -173,7 +175,6 @@ class Filter(WhereClause):
         update_query = form_update_query_with_value(q_front, datatype, mid_val)
         self.connectionHelper.execute_sql([update_query])
         new_result = self.app.doJob(query)
-        # print(new_result, mid_val)
         return mid_val, new_result
 
         # mukul
@@ -241,6 +242,7 @@ class Filter(WhereClause):
                                            insert_into_tab_select_star_fromtab(tabname, get_tabname_4(tabname))])
 
     def checkStringPredicate(self, query, tabname, attrib):
+        # updatequery
         if self.global_d_plus_value[attrib] is not None and self.global_d_plus_value[attrib][0] == 'a':
             val = 'b'
         else:

@@ -25,6 +25,8 @@ if __name__ == '__main__':
          "group by l_orderkey, o_orderdate, o_shippriority, c_mktsegment " \
          "order by revenue desc, o_orderdate asc, o_shippriority asc limit 4;"
     hq = "SELECT avg(s_nationkey) FROM supplier WHERE s_suppkey BETWEEN 10 and 15;"
+    hq = "SELECT avg(s_nationkey) FROM supplier WHERE s_suppkey >= 10 and s_suppkey <= 15;"
+
 
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
