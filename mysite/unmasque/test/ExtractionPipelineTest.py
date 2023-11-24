@@ -13,6 +13,27 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(eq is not None)
         print(eq)
 
+    def test_for_filter_1(self):
+        lower = 11
+        upper = 27
+        query = f"SELECT avg(s_nationkey) FROM supplier WHERE s_suppkey >= {lower} and s_suppkey <= {upper};"
+        eq, _ = ExtractionPipeLine.extract(query)
+        self.assertTrue(eq is not None)
+        print(eq)
+        self.assertTrue(f"Where s_suppkey  >= {lower} and s_suppkey <= {upper};" in eq)
+
+    def test_for_filter(self):
+        lower = 5
+        upper = 10
+        for i in range(10):
+            lower = lower + i
+            upper = upper + i
+            query = f"SELECT avg(s_nationkey) FROM supplier WHERE s_suppkey >= {lower} and s_suppkey <= {upper};"
+            eq, _ = ExtractionPipeLine.extract(query)
+            self.assertTrue(eq is not None)
+            print(eq)
+            self.assertTrue(f"Where s_suppkey  >= {lower} and s_suppkey <= {upper};" in eq)
+
     def test_all_sample_queries(self):
         Q_keys = queries.queries_dict.keys()
         f = open("experiment_results.txt", "w")

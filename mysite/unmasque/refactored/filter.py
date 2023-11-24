@@ -121,23 +121,24 @@ class Filter(WhereClause):
         if operator == '<=':
             while is_left_less_than_right_by_cutoff(datatype, low, high, while_cut_off):
                 mid_val, new_result = self.run_app_with_mid_val(datatype, high, low, query, query_front)
-                if mid_val == low or mid_val == high:
+                # if mid_val == low or mid_val == high:
+                if low == high:
                     self.revert_filter_changes(tabname)
                     break
-                    # return low
+                    # return mid_val
                 if isQ_result_empty(new_result):
                     new_val = get_val_plus_delta(datatype, mid_val, -1 * delta)
                     high = new_val
                 else:
                     low = mid_val
-                
                 self.revert_filter_changes(tabname)
             return low
 
         if operator == '>=':
             while is_left_less_than_right_by_cutoff(datatype, low, high, while_cut_off):
                 mid_val, new_result = self.run_app_with_mid_val(datatype, high, low, query, query_front)
-                if mid_val == low or mid_val == high:
+                # if mid_val == low or mid_val == high:
+                if low == high:
                     self.revert_filter_changes(tabname)
                     break
                     # return mid_val
