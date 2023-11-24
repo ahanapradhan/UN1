@@ -8,6 +8,13 @@ from .util.utils import isQ_result_empty, get_val_plus_delta, get_cast_value, \
 from .abstract.where_clause import WhereClause
 
 
+def if_cond_check_for_datatype(datatype, low, high, mid):
+    if datatype == 'date':
+        return mid == low or mid == high
+    if datatype == 'int':
+        return low == high
+
+
 class Filter(WhereClause):
 
     def __init__(self, connectionHelper,
@@ -121,8 +128,7 @@ class Filter(WhereClause):
         if operator == '<=':
             while is_left_less_than_right_by_cutoff(datatype, low, high, while_cut_off):
                 mid_val, new_result = self.run_app_with_mid_val(datatype, high, low, query, query_front)
-                # if mid_val == low or mid_val == high:
-                if low == high:
+                if if_cond_check_for_datatype(datatype, low, high, mid_val):
                     self.revert_filter_changes(tabname)
                     break
                     # return mid_val
@@ -137,8 +143,7 @@ class Filter(WhereClause):
         if operator == '>=':
             while is_left_less_than_right_by_cutoff(datatype, low, high, while_cut_off):
                 mid_val, new_result = self.run_app_with_mid_val(datatype, high, low, query, query_front)
-                # if mid_val == low or mid_val == high:
-                if low == high:
+                if if_cond_check_for_datatype(datatype, low, high, mid_val):
                     self.revert_filter_changes(tabname)
                     break
                     # return mid_val
